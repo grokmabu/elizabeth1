@@ -1,0 +1,6 @@
+node_modules/
+remotion/public/_anh/
+remotion/props_dung.json
+*.mp4
+*.log
+__pycache__/
