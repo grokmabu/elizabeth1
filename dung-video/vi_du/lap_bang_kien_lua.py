@@ -241,6 +241,14 @@ XY = {14: (560, 560), 25: (1100, 1000), 28: (1250, 1000), 76: (700, 1000), 111: 
 for n, xy in XY.items():
     S[n]["chu"] = [(k, t, w, h, dict(o, xy=xy)) for k, t, w, h, o in S[n]["chu"]]
 S[235]["chu"] = [("nhan", "WHEN", "when", "pop", {"xy": (480, 990)}), ("nhan", "WHERE", "where", "pop", {"xy": (1440, 990)})]
+S[14]["chu"] = []                                       # ảnh đã có biểu tượng mắt/mũi gạch chéo
+S[48]["chu"] = [("nhan", "Close range only", "close", "lo", {"xy": (1550, 900)})]
+S[131]["chu"] = [("chu", "ALL sting", "others", "pop", {"xy": (1450, 170)})]
+S[196]["chu"] = [("chu", "Stowaway kids", "great", "mo", {"xy": (480, 990)})]
+S[218]["chu"] = [("nhan", "FEEDBACK LOOP", "feedback", "lo", {"xy": (1650, 540), "mau": "vang"})]
+XY.update({147: (520, 540), 185: (960, 150), 198: (520, 990), 209: (1450, 170)})
+for n in (147, 185, 198, 209):
+    S[n]["chu"] = [(k, t, w, h, dict(o, xy=XY[n])) for k, t, w, h, o in S[n]["chu"]]
 S[192]["chu"] = []
 S[129]["chu"] = []
 S[136]["chu"] = [("chu", "The signal from YOU", "signal", "go", {})]
