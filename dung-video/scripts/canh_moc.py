@@ -37,8 +37,28 @@ mdir = os.path.join(os.path.dirname(pocketsphinx.__file__), "model", "en-us")
 DICT = set(l.split()[0] for l in open(os.path.join(mdir, "cmudict-en-us.dict"), encoding="utf-8", errors="ignore"))
 NUM = {"0": "zero", "1": "one", "2": "two", "3": "three", "4": "four", "5": "five", "6": "six", "7": "seven", "8": "eight", "9": "nine"}
 
+ONES = "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen".split()
+TENS = "_ _ twenty thirty forty fifty sixty seventy eighty ninety".split()
+
+def so_chu(n):
+    """Đọc số như người đọc tiếng Anh: 300 -> three hundred, 220000 -> two hundred twenty thousand."""
+    if n < 20: return [ONES[n]]
+    if n < 100: return [TENS[n // 10]] + ([ONES[n % 10]] if n % 10 else [])
+    if n < 1000: return [ONES[n // 100], "hundred"] + (so_chu(n % 100) if n % 100 else [])
+    for gt, ten in ((10**9, "billion"), (10**6, "million"), (1000, "thousand")):
+        if n >= gt:
+            return so_chu(n // gt) + [ten] + (so_chu(n % gt) if n % gt else [])
+
+def doc_so(w):
+    n = int(w)
+    if len(w) == 4 and 1100 <= n <= 2099 and n % 1000 >= 10 and not (2000 <= n <= 2009):   # năm: 1962 -> nineteen sixty two
+        hi, lo = divmod(n, 100)
+        return so_chu(hi) + (["hundred"] if lo == 0 else (["oh", ONES[lo]] if lo < 10 else so_chu(lo)))
+    return so_chu(n)
+
 def to_words(line):
     out = []
+    line = re.sub(r"(?<=\d),(?=\d{3})", "", line).replace("&", " and ")
     for w in re.findall(r"[A-Za-z0-9']+", line):
         lw = w.lower()
         if lw in DICT:
@@ -47,12 +67,13 @@ def to_words(line):
             out.append(lw[:-2])
         elif w.isupper() and len(w) <= 6:          # viết tắt: USDA -> u s d a
             out += [c.lower() for c in w if c.lower() in DICT]
-        elif w.isdigit():                          # số: đọc từng chữ số (đủ để giữ nhịp căn)
-            out += [NUM[c] for c in w]
+        elif w.isdigit():                          # số: đọc như người (năm / số đếm)
+            out += [x for x in doc_so(w) if x in DICT]
         # từ lạ khác: bỏ qua, chỉ làm lệch nhẹ mốc của chữ bên cạnh
     return out
 
 bw = [to_words(l) for _, l in beats]
+TONG = sum(len(w) for w in bw)
 pcm = subprocess.run(["ffmpeg", "-loglevel", "error", "-i", a.audio, "-ac", "1", "-ar", str(SR), "-f", "s16le", "-"],
                      capture_output=True, check=True).stdout
 dur = len(pcm) / 2 / SR
@@ -62,6 +83,8 @@ def align(t0, t1, words):
     d = Decoder(samprate=SR, bestpath=False)
     d.set_align_text(" ".join(words))
     d.start_utt(); d.process_raw(seg, full_utt=True); d.end_utt()
+    if d.hyp() is None or d.seg() is None:   # căn hụt: pocketsphinx trả None thay vì danh sách
+        return None
     out = [(re.sub(r"\(\d+\)$", "", s.word), t0 + s.start_frame / 100, t0 + (s.end_frame + 1) / 100)
            for s in d.seg() if s.word not in ("<s>", "</s>", "<sil>", "[NOISE]")]
     return out if len(out) == len(words) else None
@@ -72,7 +95,8 @@ while i < len(beats):
     ctx = i - 1 if i > 0 else None          # câu trước làm "mồi" để chữ đầu đoạn không nuốt khoảng lặng
     ctx_n = len(bw[ctx]) if ctx is not None else 0
     words = (bw[ctx] if ctx is not None else []) + [w for ws in bw[i:j] for w in ws]
-    win = len(words) / 2.0 + 6
+    # cửa sổ theo tốc độ đọc thật của cả file (+15% và 3s dư); cửa sổ quá rộng làm mốc bị kéo giãn và trôi dần
+    win = len(words) / (TONG / dur) * 1.15 + 3
     segs = None
     for _ in range(4):
         segs = align(cur, min(cur + win, dur), words)
@@ -80,6 +104,7 @@ while i < len(beats):
             break
         win *= 1.5
     if not segs:
+        json.dump(res, open(a.out + ".do_dang.json", "w"), ensure_ascii=False, indent=1)
         sys.exit(f"Căn hụt ở đoạn {beats[i][0]}–{beats[j-1][0]}: kiểm tra file giọng có đọc đúng các câu này không.")
     segs = segs[ctx_n:]
     keep_to = j if j == len(beats) else max(i + 1, j - 3)   # bỏ 3 câu cuối, căn lại ở đoạn sau cho chắc

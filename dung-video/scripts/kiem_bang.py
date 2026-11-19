@@ -33,9 +33,10 @@ for c in b["chu"]:
     if c["h"] not in st:
         loi.append(f"chữ '{c['text']}' gắn vào hình không có: {c['h']}"); continue
     old = c["t"]
-    c["t"] = round(max(min(c["t"], het(c["h"]) - 1.0), st[c["h"]] + 0.1), 2)
+    hc = c.get("het") or het(c["h"])          # chữ có thể kéo dài sang hình sau bằng "het"
+    c["t"] = round(max(min(c["t"], hc - 1.0), st[c["h"]] + 0.1), 2)
     if abs(c["t"] - old) > 0.01:
-        sua.append(f"{c['h']} '{c['text']}': {old}s -> {c['t']}s (hiện {het(c['h']) - c['t']:.2f}s)")
+        sua.append(f"{c['h']} '{c['text']}': {old}s -> {c['t']}s (hiện {hc - c['t']:.2f}s)")
         for s in b["sfx"]:
             if s.get("h") == c["h"] and s["am"] in ("bung_tay", "ting", "ding", "huh", "pop") and abs(s["t"] - old) < 0.05:
                 s["t"] = c["t"]

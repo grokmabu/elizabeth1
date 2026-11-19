@@ -34,6 +34,10 @@ if not a.chi_tron:
     for h in props["hinh"]:
         dst = f"{h['id']}{os.path.splitext(h['anh'])[1]}"
         shutil.copy(h["anh"], os.path.join(pub, dst)); h["anh"] = "_anh/" + dst
+    duong = {h["id"]: h["anh"] for h in props["hinh"]}
+    for n in props.get("nhan", []):          # hiệu ứng "bat" dùng lại ảnh của hình theo id
+        if n.get("anh") in duong:
+            n["anh"] = duong[n["anh"]]
     pf = os.path.join(rm, "props_dung.json"); json.dump({"bang": props}, open(pf, "w"), ensure_ascii=False)
     cmd = ["npx", "remotion", "render", "src/index.ts", "Video", hinh_mp4, f"--props={pf}",
            f"--concurrency={os.cpu_count() or 2}", "--log=info"]

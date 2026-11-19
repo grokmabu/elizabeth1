@@ -55,5 +55,12 @@ Khi user góp ý một hình cụ thể, sửa hình đó **và** ghi quy tắc 
 - Bài nhạc được chuẩn hoá về -16 LUFS rồi áp `db` (mặc định -12 → khoảng -28 LUFS, nằm dưới giọng ~10 dB), tự hạ thêm khi có giọng (sidechain trong `dung.py`). Đổi bài theo phần, mờ vào/ra 1,5s.
 - Chỉ dùng nhạc user cung cấp (YouTube Audio Library / nguồn có giấy phép).
 
+## 5b. Chuyển cảnh, hiệu ứng chữ, điểm nhấn giọng (v2, 19/11/2026)
+- `hinh[].vao` = kiểu chuyển cảnh vào hình: `mo` (mặc định, mờ 0,3s), `trai`/`phai` (đẩy ngang), `len` (đẩy lên), `quet`/`quet_trai` (quét lộ), `lat` (lật 3D), `zoom` (phóng chuyển cảnh). Hình trước tự đi ra khớp kiểu. Chỉ dùng kiểu khác `mo` ở chỗ mở phần mới / liệt kê (~10% số hình), đổi kiểu luân phiên, không lặp liền nhau.
+- `chu[].hieu`: `go` (đánh máy, mặc định cho chu), `pop` (bật), `mo` (mờ + nổi lên), `truot` (+`tu`: trai/phai/duoi), `lo` (lộ dần trái→phải), `dap` (đập mạnh từ to về, cho cú lật / số quan trọng). `mau`: `vang` (thông tin chính), `do` (nguy hiểm/cảnh báo). `het`: cho chữ ở lại sang hình sau khi hình quá ngắn.
+- `nhan[]` = điểm nhấn giọng: `dap` (phóng giật + rung, x/y = điểm phóng), `rung`, `flash`, `bat` (cắt vùng x,y,w,h của ảnh `anh`=id hình thành thẻ bật ra). Chọn chỗ bằng phân tích độ lớn/độ kéo dài/ngắt của từng chữ trong giọng, cộng nội dung câu; ~1 lần / 30–40 giây, không liên tiếp. Luôn đi kèm SFX va chạm (`dap`, `bonk`, `set`, `dun_dun`).
+- Chọn vị trí chữ tự động bằng `vung_trong.py` (vùng ít nét nhất, tránh điểm phóng và chữ khác), sau đó vẫn phải xem `kiem_chu_*`.
+- `canh_moc.py`: số được đọc như người ("1962" → nineteen sixty two, "300" → three hundred); cửa sổ căn theo tốc độ đọc thật — trước đây đọc số từng chữ số làm mốc trôi dần tới hụt.
+
 ## 6. Nhật ký điều chỉnh
 - 18/11/2026 — lô 12: chữ tối thiểu 1,0s; chữ đen trên nền trắng thêm viền trắng 14px; giữ chữ trong lề 60px; chữ không đặt gần điểm phóng của hình `dam`.
