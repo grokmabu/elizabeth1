@@ -123,7 +123,7 @@ const LopChu: React.FC<{c: Chu; het: number}> = ({c, het}) => {
     tf += ` scale(${nay2}) rotate(-3deg)`;
     op *= interpolate(t, [0, 0.06], [0, 1], clamp);
   } else if (hieu === 'go') {
-    const toc = Math.min(Math.max(c.text.length * 0.035, 0.25), 0.6);
+    const toc = Math.min(Math.max(c.text.length * 0.025, 0.2), 0.4);
     text = c.text.slice(0, Math.ceil(interpolate(t, [0, toc], [0, c.text.length], clamp)));
   }
   const base: React.CSSProperties = {position: 'absolute', left: c.x, top: c.y, transform: tf, opacity: op, clipPath: clip,
