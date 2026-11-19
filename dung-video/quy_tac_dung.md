@@ -64,3 +64,4 @@ Khi user góp ý một hình cụ thể, sửa hình đó **và** ghi quy tắc 
 
 ## 6. Nhật ký điều chỉnh
 - 18/11/2026 — lô 12: chữ tối thiểu 1,0s; chữ đen trên nền trắng thêm viền trắng 14px; giữ chữ trong lề 60px; chữ không đặt gần điểm phóng của hình `dam`.
+- 19/11/2026 — kien_lua (H012 "...or YOU?"): chữ **không bao giờ** được ở lại sang hình sau. Câu có từ khóa cuối câu mà hình ngắn → dời chữ sớm lên trong chính hình đó; hình quá ngắn (<1s) thì chữ hiện hết thời gian của hình rồi tắt cùng hình. Không dùng trường `het` để kéo chữ qua ranh giới hình. (User duyệt tổng thể bản dựng v2: chuyển cảnh đa dạng + điểm nhấn giọng.)

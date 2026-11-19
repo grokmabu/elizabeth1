@@ -289,8 +289,7 @@ for n, sp in S.items():
         c = {"h": hid, "kieu": kieu, "text": text, "t": round(t, 2), "x": x, "y": y, "nen": nen, "hieu": hieu}
         ids = [x["id"] for x in b["hinh"]]; i = ids.index(hid)
         het_h = b["hinh"][i + 1]["bat_dau"] if i + 1 < len(ids) else b["ket_thuc"]
-        if het_h - t < 1.2:                   # hình quá ngắn: chữ ở lại sang hình sau cho đủ đọc
-            c["het"] = round(min(t + 1.3, b["ket_thuc"]), 2)
+        # (19/11 user góp ý H012) chữ KHÔNG được kéo sang hình sau; kiem_bang tự dời chữ sớm lên trong hình
         for k in ("sub", "mau"):
             if op.get(k):
                 c[k] = op[k]
